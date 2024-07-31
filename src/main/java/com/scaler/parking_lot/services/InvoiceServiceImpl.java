@@ -36,8 +36,7 @@ public class InvoiceServiceImpl implements InvoiceService{
 
         PricingStrategy pricingStrategy = strategyFactory.getPricingStrategy(exitDate);
         double amount = pricingStrategy.calculateAmount(ticket.getEntryTime(), exitDate, ticket.getVehicle().getVehicleType());
-        List<AdditionalService> additionalServices = ticket.getAdditionalServices();
-        for(AdditionalService service: additionalServices)
+        for(AdditionalService service: ticket.getAdditionalServices())
             amount += service.getCost();
 
         Invoice invoice = new Invoice();

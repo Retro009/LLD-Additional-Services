@@ -14,6 +14,11 @@ public class PricingStrategyFactory {
     }
 
     public PricingStrategy getPricingStrategy(Date exitTime){
-        return null;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(exitTime);
+        int day = cal.get(Calendar.DAY_OF_WEEK);
+        if(day == 1 || day == 7)
+            return new WeekendPricingStrategy(slabRepository);
+        return new WeekdayPricingStrategy();
     }
 }

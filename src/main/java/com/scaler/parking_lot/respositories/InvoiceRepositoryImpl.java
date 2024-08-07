@@ -12,6 +12,7 @@ public class InvoiceRepositoryImpl implements InvoiceRepository{
     public Invoice save(Invoice invoice) {
         if(invoice.getId()==0)
             invoice.setId(++idCounter);
+        invoices.add(invoice);
         return invoice;
     }
 }

@@ -17,7 +17,7 @@ public class TicketController {
     public GenerateTicketResponseDto generateTicket(GenerateTicketRequestDto requestDto){
         GenerateTicketResponseDto responseDto = new GenerateTicketResponseDto();
         try{
-            Ticket ticket = ticketService.generateTicket(requestDto.getGateId(), requestDto.getRegistrationNumber(), requestDto.getVehicleType(), requestDto.getAdditionalServices());
+            Ticket ticket = ticketService.generateTicket(Long.valueOf(requestDto.getGateId()), requestDto.getRegistrationNumber(), requestDto.getVehicleType(), requestDto.getAdditionalServices());
             responseDto.setResponseStatus(ResponseStatus.SUCCESS);
             responseDto.setTicket(ticket);
         } catch (Exception e){

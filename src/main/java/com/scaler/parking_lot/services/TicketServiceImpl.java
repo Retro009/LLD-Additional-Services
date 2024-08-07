@@ -59,12 +59,29 @@ public class TicketServiceImpl implements TicketService{
         }
         ParkingSpot parkingSpot = parkingSpotOptional.get();
 
+        List<AdditionalService> additionalServices = new ArrayList<>();
+        if(additionalServicesList != null) {
+            for (String additionalServiceStr : additionalServicesList) {
+                AdditionalService additionalService;
+                try {
+                    additionalService = AdditionalService.valueOf(additionalServiceStr);
+                } catch (IllegalArgumentException e) {
+                    throw new UnsupportedAdditionalService("Invalid additional service. plz check the notice board.. ");
+                }
+                if (!additionalService.getSupportedVehicleTypes().contains(VehicleType.valueOf(vehicleType))) {
+                    throw new AdditionalServiceNotSupportedByVehicle("Invalid vehicle type for additional service");
+                }
+                additionalServices.add(additionalService);
+            }
+        }
+
         Ticket ticket = new Ticket();
         ticket.setVehicle(vehicle);
         ticket.setEntryTime(new Date());
         ticket.setParkingSpot(parkingSpot);
         ticket.setGate(gate);
         ticket.setParkingAttendant(gate.getParkingAttendant());
+        ticket.setAdditionalServices(additionalServices);
         return this.ticketRepository.save(ticket);
     }
 

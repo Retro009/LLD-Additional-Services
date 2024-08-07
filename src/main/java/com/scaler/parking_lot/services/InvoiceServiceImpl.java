@@ -45,7 +45,7 @@ public class InvoiceServiceImpl implements InvoiceService{
         invoice.setParkingAttendant(gate.getParkingAttendant());
         invoice.setExitTime(exitDate);
         invoice.setAmount(amount);
-
+        invoiceRepository.save(invoice);
         return invoice;
     }
 }

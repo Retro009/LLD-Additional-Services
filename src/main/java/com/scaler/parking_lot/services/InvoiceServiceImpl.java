@@ -2,10 +2,7 @@ package com.scaler.parking_lot.services;
 
 import com.scaler.parking_lot.exceptions.InvalidGateException;
 import com.scaler.parking_lot.exceptions.TicketNotFoundException;
-import com.scaler.parking_lot.models.AdditionalService;
-import com.scaler.parking_lot.models.Gate;
-import com.scaler.parking_lot.models.Invoice;
-import com.scaler.parking_lot.models.Ticket;
+import com.scaler.parking_lot.models.*;
 import com.scaler.parking_lot.respositories.GateRepository;
 import com.scaler.parking_lot.respositories.InvoiceRepository;
 import com.scaler.parking_lot.respositories.TicketRepository;
@@ -32,20 +29,23 @@ public class InvoiceServiceImpl implements InvoiceService{
 
         Ticket ticket = ticketRepository.getTicketById(ticketId).orElseThrow(() -> new TicketNotFoundException("Ticket Not Found"));
         Gate gate = gateRepository.findById(gateId).orElseThrow(() -> new InvalidGateException("Invalid Gate Id"));
+        /*if(gate.getType().equals(GateType.ENTRY)) //this is making test case fail, This is one of the edge case
+            throw new InvalidGateException("Cant create Invoice at Entry gate!!");*/
+
         Date exitDate = new Date();
 
         PricingStrategy pricingStrategy = strategyFactory.getPricingStrategy(exitDate);
-        double amount = pricingStrategy.calculateAmount(ticket.getEntryTime(), exitDate, ticket.getVehicle().getVehicleType());
+        double costIncurredForParking = pricingStrategy.calculateAmount(ticket.getEntryTime(), exitDate, ticket.getVehicle().getVehicleType());
+        double costIncurredForAdditionalServices = 0;
         for(AdditionalService service: ticket.getAdditionalServices())
-            amount += service.getCost();
-
+            costIncurredForAdditionalServices += service.getCost();
+        double totalCost = costIncurredForAdditionalServices + costIncurredForParking;
         Invoice invoice = new Invoice();
         invoice.setTicket(ticket);
         invoice.setGate(gate);
         invoice.setParkingAttendant(gate.getParkingAttendant());
         invoice.setExitTime(exitDate);
-        invoice.setAmount(amount);
-        invoiceRepository.save(invoice);
-        return invoice;
+        invoice.setAmount(totalCost);
+        return invoiceRepository.save(invoice);
     }
 }

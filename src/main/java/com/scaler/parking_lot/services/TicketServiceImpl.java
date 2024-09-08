@@ -27,15 +27,9 @@ public class TicketServiceImpl implements TicketService{
 
     @Override
     public Ticket generateTicket(long gateId, String registrationNumber, String vehicleType, List<String> additionalServicesList) throws InvalidGateException, InvalidParkingLotException, ParkingSpotNotAvailableException, UnsupportedAdditionalService, AdditionalServiceNotSupportedByVehicle {
-        Optional<Gate> optionalGate = this.gateRepository.findById(gateId);
-        if (optionalGate.isEmpty()) {
-            throw new InvalidGateException("Invalid gate id");
-        }
-        Gate gate = optionalGate.get();
-        if(gate.getType().equals(GateType.EXIT)) {
-            throw new InvalidGateException("Vehicle trying to enter from exit gate");
-        }
-
+        Gate gate = this.gateRepository.findById(gateId).orElseThrow(()-> new InvalidGateException("Invalid gate id"));
+        if(gate.getType().equals(GateType.EXIT))
+            throw new InvalidGateException("Cant create ticket at Exit gate!!");
         Vehicle vehicle;
         Optional<Vehicle> optionalVehicle = vehicleRepository.getVehicleByRegistrationNumber(registrationNumber);
         if (optionalVehicle.isEmpty()) {
@@ -47,17 +41,8 @@ public class TicketServiceImpl implements TicketService{
             vehicle = optionalVehicle.get();
         }
 
-        Optional<ParkingLot> parkingLotOptional = this.parkingLotRepository.getParkingLotByGateId(gateId);
-        if (parkingLotOptional.isEmpty()) {
-            throw new InvalidParkingLotException("Invalid parking lot id");
-        }
-        ParkingLot parkingLot = parkingLotOptional.get();
-
-        Optional<ParkingSpot> parkingSpotOptional = spotAssignmentStrategy.assignSpot(parkingLot, VehicleType.valueOf(vehicleType));
-        if (parkingSpotOptional.isEmpty()) {
-            throw new ParkingSpotNotAvailableException("No parking spot available");
-        }
-        ParkingSpot parkingSpot = parkingSpotOptional.get();
+        ParkingLot parkingLot = parkingLotRepository.getParkingLotByGateId(gateId).orElseThrow(()-> new InvalidParkingLotException("Invalid parking lot id"));
+        ParkingSpot parkingSpot = spotAssignmentStrategy.assignSpot(parkingLot, VehicleType.valueOf(vehicleType)).orElseThrow(()-> new ParkingSpotNotAvailableException("No parking spot available"));
 
         List<AdditionalService> additionalServices = new ArrayList<>();
         if(additionalServicesList != null) {

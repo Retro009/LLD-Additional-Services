@@ -36,8 +36,10 @@ public class WeekendPricingStrategy implements PricingStrategy{
         for(Slab slab:slabs){
             if(duration > slab.getEndHour() && slab.getEndHour() != -1)
                 amount += slab.getPrice() * (slab.getEndHour()- slab.getStartHour());
-            else if(slab.getEndHour() == -1 || duration <= slab.getEndHour())
+            else if(slab.getEndHour() == -1 || duration <= slab.getEndHour()){
                 amount += (duration - slab.getStartHour())* slab.getPrice();
+                break;
+            }
         }
 
         return amount;
